@@ -426,11 +426,17 @@ function dgx_donate_donation_detail_page($donationID)
 			$day = get_post_meta($donationID, '_dgx_donate_day', true);
 			$time = get_post_meta($donationID, '_dgx_donate_time', true);
 			
+			
+			
 			echo "<tr><th>Date</th><td>$month/$day/$year $time</td></tr>\n";
 			
 			$amount = get_post_meta($donationID, '_dgx_donate_amount', true);
 			$formattedAmount = "$" . number_format($amount, 2);	
 			echo "<tr><th>Amount</th><td>$formattedAmount</td></tr>\n";
+			
+			//code
+			$code = get_post_meta($donationID, '_donation_code', true);
+			echo "<tr><th>Code</th><td>$code</td></tr>\n";
 
 			$addToMailingList = get_post_meta($donationID, '_dgx_donate_add_to_mailing_list', true);
 			if (!empty($addToMailingList))
@@ -596,7 +602,7 @@ function dgx_donate_main_page()
 	if (count($myDonations) > 0)
 	{
 		echo "<table class=\"widefat\"><tbody>\n";
-		echo "<tr><th>Date</th><th>Donor</th><th>Amount</th></tr>\n";
+		echo "<tr><th>Date</th><th>Donor</th><th>Amount</th><th>Code</th></tr>\n";
 		
 		foreach ($myDonations as $myDonation)
 		{
@@ -616,10 +622,14 @@ function dgx_donate_main_page()
 			$amount = get_post_meta($donationID, '_dgx_donate_amount', true);
 			$formattedAmount = "$" . number_format($amount, 2);
 			
+			//code
+			$code = get_post_meta($donationID, '_donation_code', true);
+			
 			$donationDetail = dgx_donate_get_donation_detail_link($donationID);
 			echo "<tr><td><a href=\"$donationDetail\">$donationDate $time</a></td>";
 			echo "<td><a href=\"$donorDetail\">$firstName $lastName</a></td>";
-			echo "<td>$formattedAmount</td></tr>\n";
+			echo "<td>$formattedAmount</td>"; 
+			echo "<td>$code</td></tr>\n";
 		}
 		
 		echo "</tbody></table>\n";
@@ -862,7 +872,7 @@ function dgx_donate_donation_report_page()
 		
 		// Start the table
 		echo "<table class=\"widefat\"><tbody>\n";
-		echo "<tr><th>Fund/Date</th><th>Donor</th><th>Amount</th></tr>\n";
+		echo "<tr><th>Fund/Date</th><th>Donor</th><th>Amount</th><th>Code</th></tr>\n";
 		
 		// Now, loop on the funds and then the donation IDs inside them
 		
@@ -873,7 +883,7 @@ function dgx_donate_donation_report_page()
 			$fundTotal = 0;
 			
 			$fundCount = count($fundDonationIDs);
-			echo "<tr><th colspan=\"3\">$myFund ($fundCount)</th></tr>\n";
+			echo "<tr><th colspan=\"3\">$myFund ($fundCount)</th><th>&nbsp;</th></tr>\n";
 			foreach ($fundDonationIDs as $donationID)
 			{
 				$year = get_post_meta($donationID, '_dgx_donate_year', true);
@@ -889,19 +899,21 @@ function dgx_donate_donation_report_page()
 				$donationDetail = dgx_donate_get_donation_detail_link($donationID);
 				$donorEmail = get_post_meta($donationID, '_dgx_donate_donor_email', true);
 				$donorDetail = dgx_donate_get_donor_detail_link($donorEmail);
+				$code = get_post_meta($donationID, '_donation_code', true);
 				
 				echo "<tr><td><a href=\"$donationDetail\">$year-$month-$day $time</a></td>";
 				echo "<td><a href=\"$donorDetail\">$firstName $lastName</a></td>";
 				echo "<td>$formattedAmount</td>";
+				echo "<td>$code</td>";
 				echo "</tr>\n";
 			}
 			$formattedFundTotal = "$" . number_format($fundTotal, 2);
-			echo "<tr><th>&nbsp</th><th>Fund Subtotal</th><td>$formattedFundTotal</td></tr>\n";
+			echo "<tr><th>&nbsp</th><th>Fund Subtotal</th><td>$formattedFundTotal</td><td>&nbsp;</td></tr>\n";
 			$grandTotal = $grandTotal + $fundTotal;
 		}
 		
 		$formattedGrandTotal = "$" . number_format($grandTotal, 2);
-		echo "<tr><th>&nbsp</th><th>Grand Total</th><td>$formattedGrandTotal</td></tr>\n";
+		echo "<tr><th>&nbsp</th><th>Grand Total</th><td>$formattedGrandTotal</td><td>&nbsp;</td></tr>\n";
 		
 		echo "</tbody></table>\n";
 	}
@@ -922,7 +934,7 @@ function dgx_donate_donation_report_page()
 
 	if ( count( $myDonations ) > 0 )
 	{
-		$exportUrl = plugins_url( '/dgx-donate-export.php', __FILE__ );
+		$exportUrl = plugins_url( '/seamless-donations/dgx-donate-export.php', __FILE__ );
 		echo "<h3>Export Report as Spreadsheet (CSV)</h3>\n";
 		echo "<p>Click the following button to export detailed information for each donation in this report to a ";
 		echo "comma-separated-value (CSV) file compatible with most spreadsheet software.</p>";
@@ -1151,7 +1163,7 @@ function dgx_donate_donor_report_page()
 		
 		// Start the table
 		echo "<table class=\"widefat\"><tbody>\n";
-		echo "<tr><th>Donor/Date</th><th>Fund</th><th>Amount</th></tr>\n";
+		echo "<tr><th>Donor/Date</th><th>Fund</th><th>Amount</th><th>Code</th></tr>\n";
 		
 		// Now, loop on the funds and then the donation IDs inside them
 		
@@ -1164,7 +1176,7 @@ function dgx_donate_donor_report_page()
 			$donorName = $myDonorNames[$myDonorEmail];
 			$donorCount = count($donorDonationIDs);
 			$donorDetail = dgx_donate_get_donor_detail_link($donorEmail);
-			echo "<tr><th colspan=\"3\"><a href=\"$donorDetail\">$donorName ($donorCount)</a></th></tr>\n";
+			echo "<tr><th colspan=\"4\"><a href=\"$donorDetail\">$donorName ($donorCount)</a></th></tr>\n";
 			foreach ($donorDonationIDs as $donationID)
 			{
 				$year = get_post_meta($donationID, '_dgx_donate_year', true);
@@ -1182,18 +1194,23 @@ function dgx_donate_donor_report_page()
 				$formattedAmount = "$" . number_format($amount, 2);				
 
 				$donationDetail = dgx_donate_get_donation_detail_link($donationID);
+				
+				//donation code
+				$code = get_post_meta($donationID, '_donation_code', true);
+				
 				echo "<tr><td><a href=\"$donationDetail\">$year-$month-$day $time</a></td>";
 				echo "<td>$fundName</td>";
 				echo "<td>$formattedAmount</td>";
+				echo "<td>$code</td>";
 				echo "</tr>\n";
 			}
 			$formattedDonorTotal = "$" . number_format($donorTotal, 2);
-			echo "<tr><th>&nbsp</th><th>Donor Subtotal</th><td>$formattedDonorTotal</td></tr>\n";
+			echo "<tr><th>&nbsp</th><th>Donor Subtotal</th><td>$formattedDonorTotal</td><th>&nbsp;</th></tr>\n";
 			$grandTotal = $grandTotal + $donorTotal;
 		}
 		
 		$formattedGrandTotal = "$" . number_format($grandTotal, 2);
-		echo "<tr><th>&nbsp</th><th>Grand Total</th><td>$formattedGrandTotal</td></tr>\n";
+		echo "<tr><th>&nbsp</th><th>Grand Total</th><td>$formattedGrandTotal</td><td>&nbsp;</td></tr>\n";
 		
 		echo "</tbody></table>\n";
 	}

@@ -122,7 +122,7 @@ add_action('wp_print_styles', 'dgx_donate_queue_stylesheet');
 
 /**********************************************************************************************************/
 function dgx_donate_queue_admin_stylesheet() {
-        $styleurl = plugins_url('/css/adminstyles.css', __FILE__);
+        $styleurl = plugins_url('/seamless-donations/css/adminstyles.css', __FILE__);
 
         wp_register_style('dgx_donate_admin_css', $styleurl);
         wp_enqueue_style('dgx_donate_admin_css');
@@ -136,6 +136,7 @@ function dgx_donate_queue_scripts() {
 
 	wp_enqueue_script('jquery');
 	$scripturl = plugins_url('/js/script.js',__FILE__); 
+	//wp_register_script('dgx_donate_script', $scripturl, array('jquery'));
 	wp_enqueue_script('dgx_donate_script', $scripturl, array('jquery'));
 
 	// declare the URL to the file that handles the AJAX request (wp-admin/admin-ajax.php)
@@ -810,7 +811,10 @@ function dgx_donate_send_thank_you_email($donationID, $testAddress="")
 
 /******************************************************************************************************/
 function dgx_donate_send_donation_notification($donationID)
-{
+{	
+	//donation code
+	$unique_code = get_post_meta($donationID, '_donation_code', true);
+	
     $fromEmail = get_option('dgx_donate_reply_email');
 	$subject = "[Donate] A donation has been received";
 	$body = "A donation has been received.  Here are some details about the donation.\n";
@@ -827,7 +831,7 @@ function dgx_donate_send_donation_notification($donationID)
 	$body .= "$city $state $zip\n";
 	$body .= "$donorEmail\n";
 	$body .= "\n";
-
+	
 	$tributeGift = get_post_meta($donationID, '_dgx_donate_tribute_gift', true);
 	if (!empty($tributeGift))
 	{
@@ -840,6 +844,7 @@ function dgx_donate_send_donation_notification($donationID)
 	$formattedDonationAmount = "$" . number_format($amount, 2);
 	$body .= "Donation:\n";
 	$body .= "Amount: $formattedDonationAmount\n";
+	$body .= "Code:  $uniqe_code \n";
 	
 	$body .= "\n";
 	$body .= "Click on the following link to view all details for this donation:\n";
